@@ -76,7 +76,7 @@ O caminho padrão de entrada utilizado pelo notebook de ingestão é:
 
 ### 1. Landing to Bronze
 
-Arquivo: [`01_landing_to_bronze.ipynb`](notebooks/01_landing_to_bronze.ipynb)
+Arquivo: [`Landing_to_Bronze.ipynb`](notebooks/Landing_to_Bronze.ipynb)
 
 Responsável por:
 
@@ -88,16 +88,18 @@ Responsável por:
 6. Gravar a cotação em `bronze.tb_cotacao_dolar`.
 7. Exibir validações da ingestão com `display()`.
 
-O notebook utiliza widgets para configurar o caminho dos arquivos e as datas de início e fim da consulta da API.
+O notebook utiliza widgets para configurar o caminho dos arquivos e as datas de início e fim da consulta da API. As datas são informadas no formato `MM-DD-AAAA`; por padrão, o intervalo cobre os sete dias anteriores à execução.
 
 ### 2. Bronze to Silver
 
-Arquivo: [`02_bronze_to_silver.ipynb`](notebooks/02_bronze_to_silver.ipynb)
+Arquivo: [`Bronze_to_Silver.ipynb`](notebooks/Bronze_to_Silver.ipynb)
 
 Responsável pela preparação dos dados para consumo analítico. Entre os tratamentos realizados estão:
 
 - conversão explícita de tipos;
 - padronização dos nomes das colunas;
+- manutenção de `id_filme` como `STRING` e renomeação de `tagline` para `frase_divulgacao`;
+- padronização das métricas financeiras como `DECIMAL(18,2)` e das quantidades de votos como `INT`;
 - tratamento de valores nulos e inconsistentes;
 - deduplicação e validação de registros;
 - limpeza de listas antes de operações com `explode()`;
@@ -108,7 +110,7 @@ Responsável pela preparação dos dados para consumo analítico. Entre os trata
 
 ### 3. Silver to Gold
 
-Arquivo: [`03_silver_to_gold.ipynb`](notebooks/03_silver_to_gold.ipynb)
+Arquivo: [`Silver_to_Gold.ipynb`](notebooks/Silver_to_Gold.ipynb)
 
 Responsável pela construção do modelo analítico e das respostas de negócio. O notebook cria:
 
@@ -134,7 +136,9 @@ Responsável pela construção do modelo analítico e das respostas de negócio.
 
 - `gold.gold_genai_movies_context`
 
-As tabelas utilizam chaves substitutas e relações por identificadores de filme, permitindo análises por gênero, pessoa, produtora, avaliação, receita e métricas de engajamento.
+As tabelas utilizam chaves substitutas `BIGINT`, geradas de forma determinística, e relações por identificadores de filme. A fato contém somente filmes com status `Lançado`, um registro por filme, valores financeiros em `DECIMAL(18,2)`, popularidade e notas em `DOUBLE` e quantidades de votos em `INT`. A dimensão de avaliações registra a quantidade como `INT` e a nota média como `DOUBLE`.
+
+O notebook também executa validações automáticas de unicidade, integridade referencial, campos obrigatórios do contexto GenAI, presença exclusiva de filmes lançados na fato e aderência dos tipos das principais colunas ao enunciado.
 
 ## Análises de negócio
 
@@ -147,7 +151,7 @@ O notebook Gold responde às principais perguntas analíticas do projeto:
 5. Ator com maior participação em filmes nos dois anos mais recentes da base.
 6. Produtora com maior lucro nos cinco anos mais recentes da base.
 
-Os resultados são apresentados diretamente no Databricks por meio de `display()`.
+As duas análises temporais compartilham a mesma data de referência: a maior data de lançamento válida da base, desconsiderando datas futuras e filmes que não estejam lançados. Os resultados são apresentados diretamente no Databricks por meio de `display()`.
 
 ## Workflow Databricks
 
@@ -179,9 +183,9 @@ As evidências visuais estão disponíveis em:
 
 1. Importe os notebooks da pasta `notebooks/` para o Workspace Databricks.
 2. Confirme se os arquivos estão disponíveis em `/Volumes/workspace/default/inputs` ou ajuste o widget `input_base_path`.
-3. Execute `01_landing_to_bronze.ipynb`.
-4. Execute `02_bronze_to_silver.ipynb` após a conclusão da Bronze.
-5. Execute `03_silver_to_gold.ipynb` após a conclusão da Silver.
+3. Execute `Landing_to_Bronze.ipynb`.
+4. Execute `Bronze_to_Silver.ipynb` após a conclusão da Bronze.
+5. Execute `Silver_to_Gold.ipynb` após a conclusão da Silver.
 6. Verifique as tabelas e os resultados exibidos nas células de validação.
 
 ### Execução pelo Workflow
@@ -200,6 +204,7 @@ As evidências visuais estão disponíveis em:
 - Tratamento defensivo de nulos e valores inválidos.
 - Widgets para parametrização de caminhos e datas.
 - Validações intermediárias nas camadas Bronze, Silver e Gold.
+- Validações explícitas de schema, unicidade e integridade referencial na camada Gold.
 - Separação entre ingestão, transformação e consumo analítico.
 - Orquestração declarada no `job.yaml`.
 
@@ -215,9 +220,9 @@ As evidências visuais estão disponíveis em:
 │       ├── successful-run.png
 │       └── workflow-tasks.png
 ├── notebooks/
-│   ├── 01_landing_to_bronze.ipynb
-│   ├── 02_bronze_to_silver.ipynb
-│   └── 03_silver_to_gold.ipynb
+│   ├── Landing_to_Bronze.ipynb
+│   ├── Bronze_to_Silver.ipynb
+│   └── Silver_to_Gold.ipynb
 └── README.md
 ```
 
