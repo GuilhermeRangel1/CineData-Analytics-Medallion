@@ -42,6 +42,7 @@ O pipeline trata esses problemas em etapas separadas. A Bronze preserva o conte�
 ├── evidencias/
 │   └── workflow/
 │       ├── successful-run.png
+│       ├── successful-run-graph.png
 │       └── workflow-tasks.png
 ├── notebooks/
 │   ├── Landing_to_Bronze.ipynb
@@ -340,7 +341,8 @@ As dependências são explícitas. Silver só inicia após Bronze e Gold só ini
 Evidências disponíveis:
 
 - [`workflow-tasks.png`](evidencias/workflow/workflow-tasks.png): tarefas, dependências e agendamento;
-- [`successful-run.png`](evidencias/workflow/successful-run.png): execução concluída com sucesso.
+- [`successful-run-graph.png`](evidencias/workflow/successful-run-graph.png): execução concluída com sucesso e dependências entre as tarefas;
+- [`successful-run.png`](evidencias/workflow/successful-run.png): histórico de execuções bem-sucedidas do Job.
 
 ## Como executar
 
@@ -359,8 +361,6 @@ Evidências disponíveis:
 4. Execute `Bronze_to_Silver.ipynb` após a conclusão da Bronze.
 5. Execute `Silver_to_Gold.ipynb` após a conclusão da Silver.
 6. Confira as validações e os resultados exibidos nas células finais.
-
-Depois da alteração da regra canônica, execute novamente Silver e Gold completas para que `id_obra_canonica` esteja disponível na dimensão e nas consultas analíticas.
 
 ### Execução pelo Workflow
 
